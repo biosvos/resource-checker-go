@@ -1,7 +1,9 @@
 package memory
 
 import (
+	"github.com/biosvos/resource-checker-go/flow/monitor"
 	"github.com/stretchr/testify/require"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"testing"
 )
 
@@ -31,6 +33,11 @@ func TestMemoryList_(t *testing.T) {
 	require.Equal(t, 0, len(list))
 }
 
-// func TestMemoryGetResourceStatusFailed(t *testing.T) {
-// 	memory := NewMemory()
-// }
+func TestMemoryGetResourceStatusFailed(t *testing.T) {
+	var uns unstructured.Unstructured
+	_ = uns.UnmarshalJSON([]byte(chocoFailedDeployJson))
+
+	status := decisionStatus(&uns)
+
+	require.Equal(t, monitor.StatusFailed, status.Status)
+}
