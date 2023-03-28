@@ -1,11 +1,8 @@
 package memory
 
 import (
-	"encoding/json"
 	"github.com/biosvos/resource-checker-go/flow/monitor"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/runtime/schema"
-	"time"
 )
 
 var _ monitor.Client = &Memory{}
@@ -76,12 +73,17 @@ func (m *Memory) AddResources(manifests ...string) {
 }
 
 func newResource(uns *unstructured.Unstructured) *monitor.Resource {
+	json, err := uns.MarshalJSON()
+	if err != nil {
+		panic(err)
+	}
 	return &monitor.Resource{
 		Group:     uns.GroupVersionKind().Group,
 		Version:   uns.GroupVersionKind().Version,
 		Kind:      uns.GroupVersionKind().Kind,
 		Namespace: uns.GetNamespace(),
 		Name:      uns.GetName(),
+		Manifest:  string(json),
 	}
 }
 
@@ -92,63 +94,4 @@ func newUnstructured(manifest string) *unstructured.Unstructured {
 		panic(err)
 	}
 	return &uns
-}
-
-func decisionStatus(uns *unstructured.Unstructured) monitor.Status {
-	switch uns.GroupVersionKind() {
-	case schema.GroupVersionKind{
-		Group:   "apps",
-		Version: "v1",
-		Kind:    "Deployment",
-	}:
-		return decisionDeploymentStatus(uns)
-	default:
-		panic(uns.GroupVersionKind())
-	}
-}
-
-type deploymentStatus struct {
-	Status struct {
-		Conditions []struct {
-			LastTransitionTime time.Time `json:"lastTransitionTime"`
-			LastUpdateTime     time.Time `json:"lastUpdateTime"`
-			Message            string    `json:"message"`
-			Reason             string    `json:"reason"`
-			Status             string    `json:"status"`
-			Type               string    `json:"type"`
-		} `json:"conditions"`
-		ObservedGeneration  int `json:"observedGeneration"`
-		Replicas            int `json:"replicas"`
-		UnavailableReplicas int `json:"unavailableReplicas"`
-		UpdatedReplicas     int `json:"updatedReplicas"`
-	} `json:"status"`
-}
-
-func decisionDeploymentStatus(uns *unstructured.Unstructured) monitor.Status {
-	marshal, err := json.Marshal(uns.Object)
-	if err != nil {
-		panic(err)
-	}
-	var status deploymentStatus
-	err = json.Unmarshal(marshal, &status)
-	if err != nil {
-		panic(err)
-	}
-	if status.Status.UnavailableReplicas > 0 {
-		var reasons []string
-		for _, condition := range status.Status.Conditions {
-			if condition.Status == "False" {
-				reasons = append(reasons, condition.Reason)
-			}
-		}
-
-		return monitor.Status{
-			Status:  monitor.StatusFailed,
-			Reasons: reasons,
-		}
-	}
-
-	return monitor.Status{
-		Status: monitor.StatusSuccess,
-	}
 }
