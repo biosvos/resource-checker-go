@@ -1,16 +1,27 @@
 package main
 
 import (
-	"github.com/biosvos/resource-checker-go/infra/kubernetes"
-	"github.com/biosvos/resource-checker-go/infra/ui"
+	"github.com/biosvos/resource-checker-go/flow/flower"
+	"github.com/biosvos/resource-checker-go/infra/memory"
+	"github.com/biosvos/resource-checker-go/infra/unstructure"
 	"log"
 )
 
 func main() {
-	monitor, err := kubernetes.NewClient()
+	monitor := memory.NewMemory()
+	monitor.AddResources(chocoFailedDeployJson, chocoFailedReplicasetJson, chocoFailedPodManifest)
+	flow := flower.NewFlow(monitor, unstructure.NewFactory())
+	workload, err := flow.GetFamily(&flower.Resource{
+		GroupVersionKind: flower.GroupVersionKind{
+			Group:   "apps",
+			Version: "v1",
+			Kind:    "Deployment",
+		},
+		Namespace: "wow",
+		Name:      "choco",
+	})
 	if err != nil {
-		log.Fatalf("%+v", err)
+		panic(err)
 	}
-	app := ui.NewCli(monitor)
-	app.Run()
+	log.Println(workload)
 }
