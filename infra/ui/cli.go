@@ -14,7 +14,7 @@ func NewCli(client monitor.Client) *Cli {
 }
 
 func (c *Cli) Run() {
-	resources, err := c.client.List("", "v1", "pod", "")
+	resources, err := c.client.List("", "v1", "pod", "", nil)
 	if err != nil {
 		log.Fatalf("%+v", err)
 	}
