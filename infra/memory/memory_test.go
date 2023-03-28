@@ -40,4 +40,7 @@ func TestMemoryGetResourceStatusFailed(t *testing.T) {
 	status := decisionStatus(&uns)
 
 	require.Equal(t, monitor.StatusFailed, status.Status)
+	require.Condition(t, func() (success bool) {
+		return len(status.Reasons) > 0
+	})
 }

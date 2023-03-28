@@ -135,8 +135,16 @@ func decisionDeploymentStatus(uns *unstructured.Unstructured) monitor.Status {
 		panic(err)
 	}
 	if status.Status.UnavailableReplicas > 0 {
+		var reasons []string
+		for _, condition := range status.Status.Conditions {
+			if condition.Status == "False" {
+				reasons = append(reasons, condition.Reason)
+			}
+		}
+
 		return monitor.Status{
-			Status: monitor.StatusFailed,
+			Status:  monitor.StatusFailed,
+			Reasons: reasons,
 		}
 	}
 
