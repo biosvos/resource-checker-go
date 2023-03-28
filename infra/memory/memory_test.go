@@ -1,7 +1,6 @@
 package memory
 
 import (
-	"github.com/biosvos/resource-checker-go/flow/monitor"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
@@ -14,19 +13,13 @@ func TestMemoryNew(t *testing.T) {
 
 func TestMemoryList(t *testing.T) {
 	memory := NewMemory()
-	memory.AddResources(&monitor.Resource{
-		Group:     "a",
-		Version:   "b",
-		Kind:      "c",
-		Namespace: "d",
-		Name:      "e",
-	})
+	memory.AddResources(chocoFailedDeployJson)
 
-	list, err := memory.List("a", "b", "c", "d")
+	list, err := memory.List("apps", "v1", "Deployment", "wow")
 
 	require.NoError(t, err)
 	require.Equal(t, 1, len(list))
-	require.Equal(t, "e", list[0].Name)
+	require.Equal(t, "choco", list[0].Name)
 }
 
 func TestMemoryList_(t *testing.T) {
@@ -38,26 +31,6 @@ func TestMemoryList_(t *testing.T) {
 	require.Equal(t, 0, len(list))
 }
 
-func TestMemoryGet(t *testing.T) {
-	memory := NewMemory()
-	memory.AddResources(&monitor.Resource{
-		Group:     "a",
-		Version:   "b",
-		Kind:      "c",
-		Namespace: "d",
-		Name:      "e",
-	})
-
-	get, err := memory.Get("a", "b", "c", "d", "e")
-
-	require.NoError(t, err)
-	require.Equal(t, "e", get.Name)
-}
-
-func TestMemoryGet_(t *testing.T) {
-	memory := NewMemory()
-
-	_, err := memory.Get("a", "b", "c", "d", "e")
-
-	require.Error(t, err)
-}
+// func TestMemoryGetResourceStatusFailed(t *testing.T) {
+// 	memory := NewMemory()
+// }

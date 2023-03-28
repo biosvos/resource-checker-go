@@ -1,8 +1,8 @@
 package memory
 
 import (
-	"errors"
 	"github.com/biosvos/resource-checker-go/flow/monitor"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
 var _ monitor.Client = &Memory{}
@@ -46,29 +46,20 @@ func (m *Memory) List(group string, version string, kind string, namespace strin
 	return ret, nil
 }
 
-func (m *Memory) Get(group string, version string, kind string, namespace string, name string) (*monitor.Resource, error) {
-	ns := GroupVersionKindNamespace{
-		Group:     group,
-		Version:   version,
-		Kind:      kind,
-		Namespace: namespace,
-	}
-	names := GroupVersionKindNamespaceName{
-		Group:     group,
-		Version:   version,
-		Kind:      kind,
-		Namespace: namespace,
-		Name:      name,
-	}
-	ret, ok := m.elements[ns][names]
-	if !ok {
-		return nil, errors.New("failed to get resource")
-	}
-	return ret, nil
-}
-
-func (m *Memory) AddResources(resources ...*monitor.Resource) {
-	for _, resource := range resources {
+func (m *Memory) AddResources(manifests ...string) {
+	for _, manifest := range manifests {
+		var uns unstructured.Unstructured
+		err := uns.UnmarshalJSON([]byte(manifest))
+		if err != nil {
+			panic(err)
+		}
+		resource := monitor.Resource{
+			Group:     uns.GroupVersionKind().Group,
+			Version:   uns.GroupVersionKind().Version,
+			Kind:      uns.GroupVersionKind().Kind,
+			Namespace: uns.GetNamespace(),
+			Name:      uns.GetName(),
+		}
 		namespace := GroupVersionKindNamespace{
 			Group:     resource.Group,
 			Version:   resource.Version,
@@ -86,6 +77,6 @@ func (m *Memory) AddResources(resources ...*monitor.Resource) {
 			Namespace: resource.Namespace,
 			Name:      resource.Name,
 		}
-		m.elements[namespace][name] = resource
+		m.elements[namespace][name] = &resource
 	}
 }
