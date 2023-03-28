@@ -1,24 +1,12 @@
 package monitor
 
-type ResourceStatus string
-
-const (
-	StatusFailed  = ResourceStatus("Failed")
-	StatusSuccess = ResourceStatus("Success")
-)
-
-type Status struct {
-	Status  ResourceStatus
-	Reasons []string
-}
-
 type Resource struct {
 	Group     string
 	Version   string
 	Kind      string
 	Namespace string
 	Name      string
-	Status    Status
+	Manifest  string
 }
 
 type Client interface {
