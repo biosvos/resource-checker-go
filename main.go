@@ -1,0 +1,1 @@
+package resource_checker_go
