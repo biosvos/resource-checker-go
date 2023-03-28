@@ -10,6 +10,7 @@ type Resource struct {
 	GroupVersionKind
 	Namespace string
 	Name      string
+	Manifest  string
 }
 
 type Flower interface {

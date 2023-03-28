@@ -69,6 +69,7 @@ func (f *Flow) GetFamily(resource *Resource) ([]*Resource, error) {
 				},
 				Namespace: clientResource.Namespace,
 				Name:      clientResource.Name,
+				Manifest:  clientResource.Manifest,
 			})
 			factory, err := f.factory.Create(clientResource.Manifest)
 			if err != nil {
