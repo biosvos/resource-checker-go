@@ -15,7 +15,7 @@ func TestMemoryList(t *testing.T) {
 	memory := NewMemory()
 	memory.AddResources(chocoFailedDeployJson)
 
-	list, err := memory.List("apps", "v1", "Deployment", "wow")
+	list, err := memory.List("apps", "v1", "Deployment", "wow", nil)
 
 	require.NoError(t, err)
 	require.Equal(t, 1, len(list))
@@ -25,7 +25,7 @@ func TestMemoryList(t *testing.T) {
 func TestMemoryList_(t *testing.T) {
 	memory := NewMemory()
 
-	list, err := memory.List("a", "b", "c", "d")
+	list, err := memory.List("a", "b", "c", "d", nil)
 
 	require.NoError(t, err)
 	require.Equal(t, 0, len(list))

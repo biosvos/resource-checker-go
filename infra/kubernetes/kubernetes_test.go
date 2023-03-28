@@ -17,7 +17,7 @@ func TestKubernetesNew(t *testing.T) {
 func TestKubernetesList(t *testing.T) {
 	client, _ := NewClient()
 
-	list, err := client.List("apps", "v1", "deployment", "wow")
+	list, err := client.List("apps", "v1", "deployment", "wow", nil)
 
 	require.NoError(t, err)
 	require.NotNil(t, list)
@@ -26,7 +26,7 @@ func TestKubernetesList(t *testing.T) {
 func TestKubernetesListWithSelector(t *testing.T) {
 	client, _ := NewClient()
 
-	resources, err := client.listWithSelector("apps", "v1", "ReplicaSet", "wow", map[string]string{
+	resources, err := client.List("apps", "v1", "ReplicaSet", "wow", map[string]string{
 		"name": "choco",
 	})
 

@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"errors"
 	"github.com/biosvos/resource-checker-go/flow/monitor"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
@@ -32,7 +33,7 @@ func NewMemory() *Memory {
 	}
 }
 
-func (m *Memory) List(group string, version string, kind string, namespace string) ([]*monitor.Resource, error) {
+func (m *Memory) List(group string, version string, kind string, namespace string, labels map[string]string) ([]*monitor.Resource, error) {
 	ns := GroupVersionKindNamespace{
 		Group:     group,
 		Version:   version,
@@ -41,10 +42,48 @@ func (m *Memory) List(group string, version string, kind string, namespace strin
 	}
 	var ret []*monitor.Resource
 	for _, uns := range m.elements[ns] {
+		if !isMatchLabels(uns, labels) {
+			continue
+		}
+
 		resource := newResource(uns)
 		ret = append(ret, resource)
 	}
 	return ret, nil
+}
+
+func isMatchLabels(uns *unstructured.Unstructured, labels map[string]string) bool {
+	for k, v := range labels {
+		if uns.GetLabels()[k] != v {
+			return false
+		}
+	}
+	return true
+}
+
+func (m *Memory) Get(group string, version string, kind string, namespace string, name string) (*monitor.Resource, error) {
+	ns := GroupVersionKindNamespace{
+		Group:     group,
+		Version:   version,
+		Kind:      kind,
+		Namespace: namespace,
+	}
+	names := GroupVersionKindNamespaceName{
+		Group:     group,
+		Version:   version,
+		Kind:      kind,
+		Namespace: namespace,
+		Name:      name,
+	}
+	_, ok := m.elements[ns]
+	if !ok {
+		return nil, errors.New("not found")
+	}
+	uns, ok := m.elements[ns][names]
+	if !ok {
+		return nil, errors.New("not found")
+	}
+	return newResource(uns), nil
 }
 
 func (m *Memory) AddResources(manifests ...string) {
