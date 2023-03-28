@@ -11,6 +11,8 @@ import (
 	clientGo "sigs.k8s.io/controller-runtime/pkg/client"
 )
 
+var _ monitor.Client = &Kubernetes{}
+
 type Kubernetes struct {
 	client clientGo.Client
 }
