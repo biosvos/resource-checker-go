@@ -8,8 +8,8 @@ const (
 )
 
 type Status struct {
-	Status ResourceStatus
-	Reason string
+	Status  ResourceStatus
+	Reasons []string
 }
 
 type Resource struct {

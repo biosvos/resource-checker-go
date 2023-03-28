@@ -137,7 +137,6 @@ func decisionDeploymentStatus(uns *unstructured.Unstructured) monitor.Status {
 	if status.Status.UnavailableReplicas > 0 {
 		return monitor.Status{
 			Status: monitor.StatusFailed,
-			Reason: "",
 		}
 	}
 
