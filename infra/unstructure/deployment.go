@@ -14,7 +14,7 @@ type Deployment struct {
 }
 
 func (d *Deployment) NeedMore() []*familiar.Id {
-	selector, exists, err := unstructured.NestedStringMap(d.uns.Object, "spec", "selector")
+	selector, exists, err := unstructured.NestedStringMap(d.uns.Object, "spec", "selector", "matchLabels")
 	if !exists || err != nil {
 		log.Fatalf("%+v %+v", exists, err)
 	}
