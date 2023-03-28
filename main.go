@@ -1,15 +1,31 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"github.com/biosvos/resource-checker-go/flow/flower"
-	"github.com/biosvos/resource-checker-go/infra/memory"
+	"github.com/biosvos/resource-checker-go/infra/kubernetes"
 	"github.com/biosvos/resource-checker-go/infra/unstructure"
 	"log"
 )
 
+func prettyPrint(b []byte) {
+	var out bytes.Buffer
+	err := json.Indent(&out, b, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Print(out.String())
+}
+
 func main() {
-	monitor := memory.NewMemory()
-	monitor.AddResources(chocoFailedDeployJson, chocoFailedReplicasetJson, chocoFailedPodManifest)
+	// monitor := memory.NewMemory()
+	// monitor.AddResources(chocoFailedDeployJson, chocoFailedReplicasetJson, chocoFailedPodManifest)
+	monitor, err := kubernetes.NewClient()
+	if err != nil {
+		panic(err)
+	}
 	flow := flower.NewFlow(monitor, unstructure.NewFactory())
 	workload, err := flow.GetFamily(&flower.Resource{
 		GroupVersionKind: flower.GroupVersionKind{
@@ -24,4 +40,7 @@ func main() {
 		panic(err)
 	}
 	log.Println(workload)
+	for _, resource := range workload {
+		prettyPrint([]byte(resource.Manifest))
+	}
 }
