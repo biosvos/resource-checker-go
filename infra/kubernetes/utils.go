@@ -6,12 +6,17 @@ import (
 )
 
 func newResource(uns *unstructured.Unstructured) *monitor.Resource {
+	json, err := uns.MarshalJSON()
+	if err != nil {
+		panic(err)
+	}
 	return &monitor.Resource{
 		Group:     uns.GroupVersionKind().Group,
 		Version:   uns.GroupVersionKind().Version,
 		Kind:      uns.GroupVersionKind().Kind,
 		Namespace: uns.GetNamespace(),
 		Name:      uns.GetName(),
+		Manifest:  string(json),
 	}
 }
 
