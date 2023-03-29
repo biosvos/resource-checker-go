@@ -14,7 +14,3 @@ type ServiceAccount struct {
 func (s *ServiceAccount) NeedMore() []*familiar.Id {
 	return nil
 }
-
-func (s *ServiceAccount) String() string {
-	return ""
-}

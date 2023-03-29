@@ -1,7 +1,6 @@
 package unstructure
 
 import (
-	"fmt"
 	"github.com/biosvos/resource-checker-go/flow/familiar"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"log"
@@ -29,8 +28,4 @@ func (r *ReplicaSet) NeedMore() []*familiar.Id {
 			Labels:    selector,
 		},
 	}
-}
-
-func (r *ReplicaSet) String() string {
-	return fmt.Sprintf("%v %v", r.uns.GetNamespace(), r.uns.GetName())
 }

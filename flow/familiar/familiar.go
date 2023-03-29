@@ -15,7 +15,6 @@ type Id struct {
 
 type Familiar interface {
 	NeedMore() []*Id
-	String() string
 }
 
 type Factory interface {
