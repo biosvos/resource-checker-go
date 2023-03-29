@@ -36,11 +36,15 @@ func (f *Factory) Create(manifest string) (familiar.Familiar, error) {
 	}:
 		return &ReplicaSet{uns: &uns}, nil
 	case schema.GroupVersionKind{
-		Group:   "",
 		Version: "v1",
 		Kind:    "Pod",
 	}:
 		return &Pod{uns: &uns}, nil
+	case schema.GroupVersionKind{
+		Version: "v1",
+		Kind:    "ServiceAccount",
+	}:
+		return &ServiceAccount{uns: &uns}, nil
 	default:
 		panic(uns.GroupVersionKind())
 	}

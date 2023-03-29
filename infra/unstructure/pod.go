@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/biosvos/resource-checker-go/flow/familiar"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"log"
 )
 
 var _ familiar.Familiar = &Pod{}
@@ -13,7 +14,21 @@ type Pod struct {
 }
 
 func (p *Pod) NeedMore() []*familiar.Id {
-	return nil
+	serviceAccountName, exists, err := unstructured.NestedString(p.uns.Object, "spec", "serviceAccountName")
+	if !exists || err != nil {
+		log.Fatalf("%+v %+v", exists, err)
+	}
+
+	return []*familiar.Id{
+		{
+			GroupVersionKind: familiar.GroupVersionKind{
+				Version: "v1",
+				Kind:    "ServiceAccount",
+			},
+			Namespace: p.uns.GetNamespace(),
+			Name:      serviceAccountName,
+		},
+	}
 }
 
 func (p *Pod) String() string {
