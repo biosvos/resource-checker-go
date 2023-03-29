@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/biosvos/structures v0.0.0-20230329000736-63b9293ea0f4
 	github.com/pkg/errors v0.9.1
+	github.com/spyzhov/ajson v0.8.0
 	github.com/stretchr/testify v1.8.2
 	k8s.io/apimachinery v0.26.3
 	k8s.io/client-go v0.26.3

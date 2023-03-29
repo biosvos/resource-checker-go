@@ -45,6 +45,16 @@ func (f *Factory) Create(manifest string) (familiar.Familiar, error) {
 		Kind:    "ServiceAccount",
 	}:
 		return &ServiceAccount{uns: &uns}, nil
+	case schema.GroupVersionKind{
+		Version: "v1",
+		Kind:    "ConfigMap",
+	}:
+		return &Empty{}, nil
+	case schema.GroupVersionKind{
+		Version: "v1",
+		Kind:    "Secret",
+	}:
+		return &Empty{}, nil
 	default:
 		panic(uns.GroupVersionKind())
 	}
