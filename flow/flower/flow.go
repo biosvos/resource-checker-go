@@ -82,6 +82,15 @@ func (f *Flow) GetFamily(resource *Resource) ([]*Resource, error) {
 				return nil, errors.WithStack(err)
 			}
 			iterator.Add(factory.NeedMore()...)
+
+			check := Checker{
+				Group:     clientResource.Group,
+				Version:   clientResource.Version,
+				Kind:      clientResource.Kind,
+				Namespace: clientResource.Namespace,
+				Name:      clientResource.Name,
+			}
+			checker.Add(check)
 		}
 	}
 	return ret, nil
