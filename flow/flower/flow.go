@@ -3,6 +3,7 @@ package flower
 import (
 	"github.com/biosvos/resource-checker-go/flow/familiar"
 	"github.com/biosvos/resource-checker-go/flow/monitor"
+	"github.com/biosvos/structures"
 	"github.com/pkg/errors"
 )
 
@@ -17,26 +18,16 @@ func NewFlow(client monitor.Client, factory familiar.Factory) *Flow {
 	return &Flow{client: client, factory: factory}
 }
 
-type Iterator[T any] struct {
-	elements []T
+type Checker struct {
+	Group     string
+	Version   string
+	Kind      string
+	Namespace string
+	Name      string
 }
 
-func NewIterator[T any](elements ...T) *Iterator[T] {
-	return &Iterator[T]{elements: elements}
-}
-
-func (i *Iterator[T]) HasNext() bool {
-	return len(i.elements) > 0
-}
-
-func (i *Iterator[T]) Next() T {
-	ret := i.elements[0]
-	i.elements = i.elements[1:]
-	return ret
-}
-
-func (i *Iterator[T]) Add(element ...T) {
-	i.elements = append(i.elements, element...)
+func (c Checker) Identify() Checker {
+	return c
 }
 
 func (f *Flow) GetFamily(resource *Resource) ([]*Resource, error) {
@@ -51,10 +42,25 @@ func (f *Flow) GetFamily(resource *Resource) ([]*Resource, error) {
 			Name:      resource.Name,
 		},
 	}
-	iterator := NewIterator(mores...)
+	iterator := structures.NewIterator(mores...)
+	checker := structures.NewSet[Checker, Checker]()
 	var ret []*Resource
 	for iterator.HasNext() {
 		cur := iterator.Next()
+		if cur.Name != "" {
+			check := Checker{
+				Group:     cur.Group,
+				Version:   cur.Version,
+				Kind:      cur.Kind,
+				Namespace: cur.Namespace,
+				Name:      cur.Name,
+			}
+			if checker.Has(check) {
+				continue
+			}
+			checker.Add(check)
+		}
+
 		resources, err := f.requestMore(cur)
 		if err != nil {
 			return nil, errors.WithStack(err)
