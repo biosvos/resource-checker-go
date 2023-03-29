@@ -34,13 +34,12 @@ func main() {
 			Kind:    "Deployment",
 		},
 		Namespace: "wow",
-		Name:      "choco",
+		Name:      "deployment-not-owner",
 	})
 	if err != nil {
 		panic(err)
 	}
-	log.Println(workload)
 	for _, resource := range workload {
-		prettyPrint([]byte(resource.Manifest))
+		log.Println(resource.Group, resource.Version, resource.Kind, resource.Namespace, resource.Name)
 	}
 }
