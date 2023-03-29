@@ -36,41 +36,68 @@ func (p *Pod) NeedMore() []*familiar.Id {
 	if err != nil {
 		panic(err)
 	}
-	configmaps, err := root.JSONPath("$.spec.containers[*].env[*].valueFrom.configMapKeyRef.name")
-	if err != nil {
-		panic(err)
-	}
-	for _, configmap := range configmaps {
-		value, err := configmap.GetString()
-		if err != nil {
-			panic(err)
-		}
+	names := strings(root, "$.spec.containers[*].env[*].valueFrom.configMapKeyRef.name")
+	for _, name := range names {
 		ret = append(ret, &familiar.Id{
 			GroupVersionKind: familiar.GroupVersionKind{
 				Version: "v1",
 				Kind:    "ConfigMap",
 			},
 			Namespace: p.uns.GetNamespace(),
-			Name:      value,
+			Name:      name,
 		})
 	}
-	secrets, err := root.JSONPath("$.spec.containers[*].env[*].valueFrom.secretKeyRef.name")
-	if err != nil {
-		panic(err)
+
+	names = strings(root, "$.spec.containers[*].envFrom[*].configMapRef.name")
+	for _, name := range names {
+		ret = append(ret, &familiar.Id{
+			GroupVersionKind: familiar.GroupVersionKind{
+				Version: "v1",
+				Kind:    "ConfigMap",
+			},
+			Namespace: p.uns.GetNamespace(),
+			Name:      name,
+		})
 	}
-	for _, secret := range secrets {
-		value, err := secret.GetString()
-		if err != nil {
-			panic(err)
-		}
+
+	names = strings(root, "$.spec.containers[*].env[*].valueFrom.secretKeyRef.name")
+	for _, name := range names {
 		ret = append(ret, &familiar.Id{
 			GroupVersionKind: familiar.GroupVersionKind{
 				Version: "v1",
 				Kind:    "Secret",
 			},
 			Namespace: p.uns.GetNamespace(),
-			Name:      value,
+			Name:      name,
 		})
+	}
+
+	names = strings(root, "$.spec.containers[*].envFrom[*].secretRef.name")
+	for _, name := range names {
+		ret = append(ret, &familiar.Id{
+			GroupVersionKind: familiar.GroupVersionKind{
+				Version: "v1",
+				Kind:    "Secret",
+			},
+			Namespace: p.uns.GetNamespace(),
+			Name:      name,
+		})
+	}
+	return ret
+}
+
+func strings(root *ajson.Node, path string) []string {
+	nodes, err := root.JSONPath(path)
+	if err != nil {
+		panic(err)
+	}
+	var ret []string
+	for _, node := range nodes {
+		value, err := node.GetString()
+		if err != nil {
+			panic(err)
+		}
+		ret = append(ret, value)
 	}
 	return ret
 }
