@@ -28,33 +28,51 @@ func (f *Factory) Create(manifest string) (familiar.Familiar, error) {
 		Version: "v1",
 		Kind:    "Deployment",
 	}:
-		return &Deployment{uns: &uns}, nil
+		return &OwnerDecorator{
+			uns:  &uns,
+			wrap: &Deployment{uns: &uns},
+		}, nil
 	case schema.GroupVersionKind{
 		Group:   "apps",
 		Version: "v1",
 		Kind:    "ReplicaSet",
 	}:
-		return &ReplicaSet{uns: &uns}, nil
+		return &OwnerDecorator{
+			uns:  &uns,
+			wrap: &ReplicaSet{uns: &uns},
+		}, nil
 	case schema.GroupVersionKind{
 		Version: "v1",
 		Kind:    "Pod",
 	}:
-		return &Pod{uns: &uns}, nil
+		return &OwnerDecorator{
+			uns:  &uns,
+			wrap: &Pod{uns: &uns},
+		}, nil
 	case schema.GroupVersionKind{
 		Version: "v1",
 		Kind:    "ServiceAccount",
 	}:
-		return &ServiceAccount{uns: &uns}, nil
+		return &OwnerDecorator{
+			uns:  &uns,
+			wrap: &ServiceAccount{uns: &uns},
+		}, nil
 	case schema.GroupVersionKind{
 		Version: "v1",
 		Kind:    "ConfigMap",
 	}:
-		return &Empty{}, nil
+		return &OwnerDecorator{
+			uns:  &uns,
+			wrap: &Empty{},
+		}, nil
 	case schema.GroupVersionKind{
 		Version: "v1",
 		Kind:    "Secret",
 	}:
-		return &Empty{}, nil
+		return &OwnerDecorator{
+			uns:  &uns,
+			wrap: &Empty{},
+		}, nil
 	default:
 		panic(uns.GroupVersionKind())
 	}
